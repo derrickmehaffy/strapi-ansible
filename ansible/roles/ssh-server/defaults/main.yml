@@ -1,0 +1,22 @@
+---
+ssh_server_regenerate_host_keys: false
+
+ssh_server_host_keys_to_copy: {}
+
+
+    # -
+    #     file: ssh_host_rsa_key
+    #     private:
+    #     public:
+    # -
+    #     file: ssh_host_dsa_key
+    #     private:
+    #     public:
+    # -
+    #     file: ssh_host_ecdsa_key
+    #     private:
+    #     public:
+    # -
+    #     file: ssh_host_ed25519_key
+    #     private:
+    #     public:

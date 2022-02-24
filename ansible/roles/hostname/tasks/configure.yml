@@ -1,0 +1,22 @@
+---
+- name: update etc hosts
+  template: src=hosts.j2
+            dest=/etc/hosts
+            owner=root
+            group=root
+            mode=644
+            backup=yes
+
+- name: update etc hostname
+  hostname: name={{ hostname_hostname|default(ansible_hostname) }}
+  when: hostname_update_hostname
+
+- name: update default ssh keys
+  replace: dest={{ item }}
+           backup=yes
+           regexp='(root@)[^\s]*$'
+           replace='\1{{ (hostname_hostname ~ ( hostname_domain|ternary('.' ~ hostname_domain, '')))|default(ansible_fqdn) }}'
+  with_items:
+    - /etc/ssh/ssh_host_rsa_key.pub
+    - /etc/ssh/ssh_host_dsa_key.pub
+  when: hostname_update_default_ssh_keys

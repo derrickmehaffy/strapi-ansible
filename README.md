@@ -1,6 +1,6 @@
-# strapi-ansible
+# Strapi Automation
 
-Spinning up Strapi servers either from scratch or from a repo using Terraform and Ansible
+Spinning up Strapi servers either from scratch or from a repo using Terraform and Ansible.
 
 ## Status
 
@@ -17,3 +17,19 @@ Ansible is used for the actual setup of depends and the deployment/creation of t
 ## Expectations
 
 While these scripts will certainly help newer users to both Terraform and Ansible, we do expect at least a little familiarity working with Linux and it's various shells, structure, ect. Bug reports will expect you properly follow the templates and issues opened that do not follow the templates will be closed.
+
+## Links
+
+- [Strapi Website](https://strapi.io)
+- [Strapi Documentation](https://strapi.io/documentation)
+- [Strapi Slack](https://slack.strapi.io)
+
+## Contributors and Maintainers
+
+- [DMehaffy](https://github.com/derrickmehaffy)
+
+## Footnote
+
+Again, this repo is not maintained as an official Strapi "project" it was started by DMehaffy, a Strapi employee, as a side project to help out Strapi users. There is no warranty, guarantee, or anything else that the code, scripts, ect will work or be supported. This is simply here as a collection of knowledge from within the Strapi community and team.
+
+If stuff breaks, that's life, we find a fix when we are able to or have time to.

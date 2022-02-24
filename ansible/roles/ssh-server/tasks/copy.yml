@@ -1,0 +1,27 @@
+- debug:
+    msg: "{{ item }}"
+  with_items: "{{ ssh_server_host_keys_to_copy }}"
+
+- name: copy ssh server host private keys
+  copy: >
+    content='{{ (item.private|trim) ~ "\n" }}'
+    dest=/etc/ssh/{{ item.file }}
+    owner=root
+    group=root
+    mode='u=rw,g=,o='
+    backup=yes
+    force=yes
+  with_items: "{{ ssh_server_host_keys_to_copy }}"
+  notify: restart ssh server
+
+- name: copy ssh server host public keys
+  copy: >
+    content='{{ item.public|trim }}'
+    dest=/etc/ssh/{{ item.file }}.pub
+    owner=root
+    group=root
+    mode='u=rw,g=r,o=r'
+    backup=yes
+    force=yes
+  with_items: "{{ ssh_server_host_keys_to_copy }}"
+  notify: restart ssh server

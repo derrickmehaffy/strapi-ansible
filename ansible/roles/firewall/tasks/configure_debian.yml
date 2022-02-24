@@ -1,0 +1,61 @@
+---
+- name: reset ufw before adding rules
+  ufw: state=reset
+  when: firewall_reset
+
+- name: set FORWARD default policy
+  lineinfile: "dest=/etc/default/ufw state=present regexp='^DEFAULT_FORWARD_POLICY=' line='DEFAULT_FORWARD_POLICY=\"{{ ( (firewall_forward_policy|default('deny')) == 'allow' or firewall_nat_forward)|ternary('ACCEPT', 'DROP') }}\"'"
+  notify: restart ufw
+
+- name: enable ufw NAT ipv4 forward
+  lineinfile: "dest=/etc/ufw/sysctl.conf state=present regexp='^#?net/ipv4/ip_forward=' line='net/ipv4/ip_forward=1'"
+  when: firewall_nat_forward
+  notify: restart ufw
+
+- name: copy before.rules ufw configuration file for NAT
+  template: src=ufw/before.rules.j2
+            dest=/etc/ufw/before.rules
+            owner=root
+            group=root
+            mode=640
+            backup=yes
+  when: "{{firewall_nat_forward}}"
+  notify: restart ufw
+
+- name: set default incoming policy
+  ufw: policy={{ firewall_incoming_policy|default('allow') }} direction=incoming
+  notify: restart ufw
+
+- name: set default outgoing policy
+  ufw: policy={{ firewall_outgoing_policy|default('allow') }} direction=outgoing
+  notify: restart ufw
+
+- name: Configuring filter rules
+  ufw:
+    delete: "{{ item.delete | default(omit) }}"
+    direction: "{{ item.direction | default(omit) }}"
+    from_ip: "{{ item.from_ip | default(omit) }}"
+    from_port: "{{ item.from_port | default(omit) }}"
+    insert: "{{ item.insert | default(omit) }}"
+    interface: "{{ item.interface | default(omit) }}"
+    log: "{{ item.log | default(omit) }}"
+    logging: "{{ item.logging | default(omit) }}"
+    name: "{{ item.name | default(omit) }}"
+    policy: "{{ item.policy | default(omit) }}"
+    port: "{{ item.service | default(item.port | default(omit)) }}"
+    proto: "{{ item.proto | default(omit) }}"
+    rule: "{{ item.rule | default('allow') }}"
+    state: "{{ item.state | default(omit) }}"
+    to_ip: "{{ item.to_ip | default(omit) }}"
+    to_port: "{{ item.to_port | default(omit) }}"
+    # route: "{{ item.route | default(omit) }}" # available in ansible 2
+  # register: firewall_rules_added.results
+  with_items: "{{firewall_rules}}"
+  notify: reload ufw
+
+- name: allow ssh
+  ufw: rule=allow proto=tcp port={{ firewall_ssh_port|default(22) }}
+  notify: reload ufw
+
+- name: enable/disable ufw
+  ufw: state={{ 'en' if firewall_enable else 'dis'}}abled

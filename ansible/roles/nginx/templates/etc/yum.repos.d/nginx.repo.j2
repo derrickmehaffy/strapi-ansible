@@ -1,0 +1,6 @@
+# {{ ansible_managed }}
+[nginx]
+name=nginx repo
+baseurl={{ nginx_official_repo_base_url }}/{{ 'centos' if ansible_lsb.id == 'CentOS' else 'rhel' }}/{{ ansible_lsb.major_release }}/$basearch/
+gpgcheck=0
+enabled=1

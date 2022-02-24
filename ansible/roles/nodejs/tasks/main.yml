@@ -1,0 +1,7 @@
+- import_tasks: install.yml
+  tags:
+      - nodejs
+
+- import_tasks: npm.yml
+  tags:
+      - nodejs

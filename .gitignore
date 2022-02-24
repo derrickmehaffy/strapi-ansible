@@ -1,0 +1,56 @@
+############################
+# Ansible
+############################
+
+# Temp files
+ansible/.ansible/tmp/*
+!ansible/.ansible/tmp/.gitkeep
+
+# Vault Password
+ansible/vault_password
+
+# Logs
+ansible/ansible.log
+
+# Host files (Remove if you you used repo as a template)
+ansible/inventories/production/hosts
+ansible/inventories/production/hosts.yml
+ansible/inventories/staging/hosts
+ansible/inventories/staging/hosts.yml
+
+
+############################
+# Terraform
+############################
+
+############################
+# Bash
+############################
+
+############################
+# Python
+############################
+
+############################
+# Docs
+############################
+# Dependencies
+docs/node_modules
+
+# Production
+docs/build
+
+# Generated files
+docs/.docusaurus
+docs/.cache-loader
+
+# Misc
+docs/.DS_Store
+docs/.env.local
+docs/.env.development.local
+docs/.env.test.local
+docs/.env.production.local
+
+docs/npm-debug.log*
+docs/yarn-debug.log*
+docs/yarn-error.log*

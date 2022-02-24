@@ -1,0 +1,24 @@
+---
+- include: install_debian.yml
+  when: ansible_os_family == 'Debian'
+  tags:
+  - firewall
+  - ufw
+
+- include: install_redhat.yml
+  when: ansible_os_family == 'RedHat'
+  tags:
+  - firewall
+  - firewalld
+
+- include: configure_debian.yml
+  when: ansible_os_family == 'Debian'
+  tags:
+  - firewall
+  - ufw
+
+- include: configure_redhat.yml
+  when: ansible_os_family == 'RedHat'
+  tags:
+  - firewall
+  - firewalld

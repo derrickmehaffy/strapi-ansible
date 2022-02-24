@@ -1,0 +1,29 @@
+ 
+---
+- name: add Ubuntu/Debian nodejs repository GPG key
+  apt_key:
+    url: '{{ nodejs_apt_key_url }}'
+
+- name: add Ubuntu/Debian nodejs main repository
+  apt_repository:
+    repo: '{{ item }} {{ nodejs_apt_base_url ~ node_url_version }} {{ ansible_lsb.codename|lower }} main'
+    state: present
+  register: nodejs_apt_result
+  with_items:
+    - deb
+    - deb-src
+
+- name: Ubuntu/Debian apt update list for new repository
+  apt:
+    update_cache: yes
+  when: nodejs_apt_result.changed
+
+- name: install nodejs dependencies
+  apt:
+    name: 'build-essential'
+    state: latest
+
+- name: install nodejs
+  apt:
+    name: 'nodejs'
+    state: "{{ nodejs_state|default('present') }}"

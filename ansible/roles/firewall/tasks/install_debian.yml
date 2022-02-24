@@ -1,0 +1,6 @@
+---
+- name: install packages for firewall
+  apt: name={{ item }}
+       state={{ firewall_state|default('present') }}
+  with_items:
+  - ufw

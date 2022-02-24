@@ -1,0 +1,20 @@
+---
+nodejs_state: latest
+
+# available version string :
+# debian 0.10 , 0.12 , 4.x , 5.x
+# redhat 0.10 , 4.x , 5.x
+node_url_version: "12.x"
+
+nodejs_npm_update: false
+nodejs_npm_default_packages:
+  # - { name: '' , version: '', global: yes,  state: present }
+  - name: "yarn"
+    state: "latest"
+
+  - name: "pm2"
+    state: "latest"
+
+nodejs_npm_packages:
+  []
+  # - { name: '' , version: '', global: yes,  state: present }

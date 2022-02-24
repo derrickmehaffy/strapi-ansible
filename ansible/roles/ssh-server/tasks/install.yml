@@ -1,0 +1,20 @@
+---
+- name: delete old SSH host keys
+  file:
+    path: /etc/ssh/{{ item }}
+    state: absent
+  when: ssh_server_regenerate_host_keys
+  with_items:
+    - ssh_host_rsa_key
+    - ssh_host_rsa_key.pub
+    - ssh_host_dsa_key
+    - ssh_host_dsa_key.pub
+    - ssh_host_ecdsa_key
+    - ssh_host_ecdsa_key.pub
+    - ssh_host_ed25519_key
+    - ssh_host_ed25519_key.pub
+
+- name: regenerate SSH host keys
+  command: dpkg-reconfigure openssh-server
+  when: ssh_server_regenerate_host_keys
+  notify: restart ssh server

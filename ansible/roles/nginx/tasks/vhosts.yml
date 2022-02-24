@@ -1,0 +1,78 @@
+---
+- name: create basic document root
+  file: path={{ item.dest|dirname }}
+        owner={{ item.owner|default('root') }}
+        group={{ item.group|default('root') }}
+        mode={{ item.mode|default('755') }}
+        state=directory
+  with_items: "{{ nginx_doc_indexes }}"
+
+- name: create basic document indexes
+  copy: src=index/{{ item.src }}
+        dest={{ item.dest }}
+        owner={{ item.owner|default('root') }}
+        group={{ item.group|default('root') }}
+        mode={{ item.mode|default('644') }}
+        backup=no
+        force=no
+  with_items: "{{ nginx_doc_indexes }}"
+
+- name: create nginx vhost directory
+  file: >
+    path=/etc/nginx/{{ item }}
+    owner=root
+    group=root
+    mode=755
+    state=directory
+  with_items:
+    - sites-available
+    - sites-enabled
+
+- name: check document root symbolic link
+  stat: path={{ item.link_to }}
+  register: nginx_docroot_result
+  when: item.link_src is defined and item.link_src != '' and item.link_to is defined and item.link_to != ''
+  with_items: "{{ nginx_doc_indexes }}"
+
+- name: create symbolic link to document root
+  file: src={{ item.item.link_src }}
+        dest={{ item.item.link_to }}
+        owner={{ item.item.owner|default('root') }}
+        group={{ item.item.group|default('root') }}
+        mode={{ item.item.mode|default('755') }}
+        state=link
+        backup=no
+        force=no
+  when: (not item.stat.exists or not item.stat.islink) and item.item.link_src is defined and item.item.link_src != '' and item.item.link_to is defined and item.item.link_to != ''
+  with_items: "{{ nginx_docroot_result.results }}"
+
+# vhosts
+- name: Copy nginx vhost files.
+  template: src={{ item.value.template|default('nginx_vhost.j2') }}
+            dest=/etc/nginx/sites-available/{{ item.key }}
+            owner=root
+            group=root
+            mode=644
+            backup=yes
+  with_dict: "{{ nginx_vhosts }}"
+  when: item.value.enable|default(false) and (item.value.servers|default({})|length > 0 or (item.value.template is defined and item.value.template != ''))
+  notify: reload nginx
+
+- name: disable nginx vhosts
+  file: path=/etc/nginx/sites-enabled/{{ item.key }}
+        owner=root
+        group=root
+        state=absent
+  with_dict: "{{ nginx_vhosts }}"
+  when: not item.value.enable|default(false)
+  notify: reload nginx
+
+- name: enable nginx vhosts
+  file: src=/etc/nginx/sites-available/{{ item.key }}
+        dest=/etc/nginx/sites-enabled/{{ item.key }}
+        owner=root
+        group=root
+        state=link
+  with_dict: "{{ nginx_vhosts }}"
+  when: item.value.enable|default(false)
+  notify: reload nginx

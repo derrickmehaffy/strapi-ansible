@@ -1,0 +1,116 @@
+---
+apt_sources_replace: true
+
+apt_sources_lists_default:
+    # Debian
+    -
+        comment: Official repositories
+        file: /etc/apt/sources.list
+        distrib: Debian
+        repositories:
+            -
+                comment: Main repositories
+                enabled: true
+                src_enabled: true
+                url: http://httpredir.debian.org/debian/
+                packages: ['main','contrib','non-free']
+                section:  "{{ ansible_lsb.codename }}"
+            -
+                comment: Updates repositories
+                enabled: true
+                src_enabled: true
+                url: http://httpredir.debian.org/debian/
+                packages: ['main','contrib','non-free']
+                section:  "{{ ansible_lsb.codename }}-updates"
+            -
+                comment: Security Updates repositories
+                enabled: true
+                src_enabled: true
+                url: http://security.debian.org/
+                packages: ['main','contrib','non-free']
+                section:  "{{ ansible_lsb.codename }}/updates"
+    -
+        comment: Official Backports repositories
+        file: /etc/apt/sources.list.d/backports.list
+        distrib: Debian
+        repositories:
+            -
+                comment: Backports repositories
+                enabled: true
+                src_enabled: true
+                url: http://httpredir.debian.org/debian/
+                packages: ['main','contrib','non-free']
+                section:  "{{ ansible_lsb.codename }}-backports"
+
+    # Ubuntu
+    -
+        comment: Official repositories
+        file: /etc/apt/sources.list
+        distrib: Ubuntu
+        repositories:
+            -
+                comment: Main repositories
+                enabled: true
+                src_enabled: true
+                url: http://archive.ubuntu.com/ubuntu/
+                packages: ['main', 'restricted', 'universe', 'multiverse']
+                section:  "{{ ansible_lsb.codename }}"
+            -
+                comment: Update repositories
+                enabled: true
+                src_enabled: true
+                url: http://archive.ubuntu.com/ubuntu/
+                packages: ['main', 'restricted', 'universe', 'multiverse']
+                section:  "{{ ansible_lsb.codename }}-updates"
+            -
+                comment: Security Update repositories
+                enabled: true
+                src_enabled: true
+                url: http://archive.ubuntu.com/ubuntu/
+                packages: ['main', 'restricted', 'universe', 'multiverse']
+                section:  "{{ ansible_lsb.codename }}-security"
+            -
+                comment: Partner repositories
+                enabled: true
+                src_enabled: true
+                url: 'http://archive.canonical.com/ubuntu'
+                packages: ['partner']
+                section:  "{{ ansible_lsb.codename }}"
+    -
+        comment: Official Backports repositories
+        file: /etc/apt/sources.list.d/backports.list
+        distrib: Ubuntu
+        repositories:
+            -
+                comment: Backports repositories
+                enabled: true
+                src_enabled: true
+                url: 'http://archive.ubuntu.com/ubuntu'
+                packages: ['main', 'restricted', 'universe', 'multiverse']
+                section:  "{{ ansible_lsb.codename }}-backports"
+
+apt_sources_lists_extra: []
+    # -
+    #     comment:
+    #     file: /etc/apt/sources.list.d/<file>.list
+    #     distrib: Debian
+    #     repositories:
+    #         -
+    #             comment:
+    #             enabled: true
+    #             src_enabled: false
+    #             url:
+    #             packages: []
+    #             section_prefix:
+    #             section:  # default ansible_lsb.codename
+    #             section_suffix:
+
+apt_update_cache_valid_time: 3600
+apt_upgrade_type: safe
+apt_upgrade: false
+
+# list of extra packages to install
+apt_extra_packages: []
+
+# list of packages to remove
+apt_remove_packages: []

@@ -1,0 +1,4 @@
+---
+nginx_official_repo_signing_key_url: http://nginx.org/keys/nginx_signing.key
+
+nginx_official_repo_base_url: http://nginx.org/packages

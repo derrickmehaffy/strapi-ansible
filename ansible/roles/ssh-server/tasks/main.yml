@@ -1,0 +1,8 @@
+---
+- include: install.yml
+  tags:
+  - ssh-server
+
+- include: copy.yml
+  tags:
+  - ssh-server

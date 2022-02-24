@@ -1,0 +1,6 @@
+---
+- name: install packages for firewall
+  yum: name={{ item }}
+       state={{ firewall_state|default('present') }}
+  with_items:
+  - firewalld

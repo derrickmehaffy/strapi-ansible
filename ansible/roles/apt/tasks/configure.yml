@@ -1,0 +1,60 @@
+---
+- name: install ansible dependencies
+  apt:
+    name: ["aptitude", "lsb-release"]
+    state: latest
+
+- name: copy default sources list
+  template:
+    src: sources.list.j2
+    dest: "{{ item.file }}"
+    owner: root
+    group: root
+    mode: 644
+    backup: yes
+  when: apt_sources_replace and ansible_lsb.id|lower == item.distrib|lower
+  with_items: "{{ apt_sources_lists_default }}"
+  register: apt_sources_lists_default_result
+
+- name: copy extra sources list
+  template:
+    src: sources.list.j2
+    dest: "{{ item.file }}"
+    owner: root
+    group: root
+    mode: 644
+    backup: yes
+  when: apt_sources_replace and ansible_lsb.id|lower == item.distrib|lower
+  with_items: "{{ apt_sources_lists_extra }}"
+  register: apt_sources_lists_extra_result
+
+- name: apt update list
+  apt:
+    update_cache: yes
+    cache_valid_time: "{{ omit if apt_sources_lists_default_result.changed or apt_sources_lists_extra_result.changed else apt_update_cache_valid_time|default(3600) }}"
+
+- name: remove packages
+  apt:
+    name: "{{ item }}"
+    state: absent
+  with_items: "{{ apt_remove_packages }}"
+
+- name: install source list dependencies
+  apt:
+    name:
+      - apt-transport-https
+      - curl
+      - ca-certificates
+      - wget
+    state: latest
+
+- name: install extra packages
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ apt_extra_packages }}"
+
+- name: apt upgrade
+  apt:
+    upgrade: "{{ apt_upgrade_type|default('safe') }}"
+  when: apt_upgrade

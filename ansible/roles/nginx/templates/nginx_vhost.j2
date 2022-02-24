@@ -1,0 +1,14 @@
+# {{ ansible_managed }}
+{% import 'nginx_macros.j2' as nginx_macros with context %}
+{% for key,upstream in (item.value.upstreams|default({})).iteritems() %}
+upstream {{ key }} {
+{{ nginx_macros.paramsList(upstream) }}
+}
+
+{% endfor %}
+{% for server in item.value.servers|default([]) %}
+server {
+{{ nginx_macros.paramsList(server) }}
+}
+
+{% endfor %}

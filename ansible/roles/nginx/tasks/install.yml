@@ -1,0 +1,18 @@
+---
+- name: add nginx official apt key
+  apt_key: state=present url={{ nginx_official_repo_signing_key_url }}
+  when: nginx_official_repo_enabled
+
+- name: add nginx official apt repository
+  apt_repository: >
+    repo='{{ item }} {{ nginx_official_repo_base_url }}/{{ ansible_lsb.id|lower }}/ {{ ansible_lsb.codename|lower }} nginx'
+    state=present
+  with_items:
+    - deb
+    - deb-src
+  when: nginx_official_repo_enabled
+
+- name: install nginx
+  apt: update_cache=yes
+       name=nginx
+       state={{ nginx_state|default('present') }}

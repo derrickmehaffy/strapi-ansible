@@ -1,0 +1,13 @@
+---
+- include: install.yml
+  tags:
+  - nginx
+
+- include: config.yml
+  tags:
+  - nginx
+
+- include: vhosts.yml
+  tags:
+  - nginx
+  - vhosts

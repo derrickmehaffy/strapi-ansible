@@ -1,0 +1,115 @@
+---
+firewall_state: latest
+
+# SSH port for standard SSH rule
+firewall_ssh_port: 22
+
+###    for debian/ubuntu (ufw)    ###
+
+# reset all existing rules and disable firewall before adding new rules
+firewall_reset: false
+
+# default policy for incoming traffic
+firewall_incoming_policy: allow
+
+# default policy for outgoing traffic
+firewall_outgoing_policy: allow
+
+# default policy for routed FORWARD traffic (st to allow to enable nat forward postrouting)
+firewall_forward_policy: deny
+
+#####################################
+
+### for redhat/centos (firewalld) ###
+
+# set firewalld default zone, leave empty to keep existing one
+firewall_default_zone:
+
+# add masquerade to zone , needed for port forwarding rules
+firewall_masquerade_zones: []
+    # - { zone: public , enabled: true }
+
+
+#####################################
+# enable NAT forwarding and postrouting MASQUERADE (set server as a network gateway)
+firewall_nat_forward: false
+
+# enable or disable firewall after new rules were added
+firewall_enable: false
+
+# nat forward rules
+# from_ip not used in firewalld on redhat/centos
+firewall_nat_forward_rules: []
+    # - { from_ip: '', from_port: 15432, proto: tcp, to_ip: '',to_port: 5432 }
+
+# ports filter rules
+#
+# for service ports alias
+# see /etc/services on debian/ubuntu or redhat/centos
+firewall_rules: []
+    # for debian/ubuntu (ufw)
+
+    # SSH 22
+    # - { rule: allow, service: ssh }
+    # dns
+    # - { rule: allow, service: domain }
+    # ntp
+    # - { rule: allow, service: ntp }
+    # HTTP
+    # - { rule: allow, service: http }
+    # HTTPS
+    # - { rule: allow, service: https }
+    # GIT
+    # - { rule: allow, service: git }
+    # FTP
+    # - { rule: allow, service: ftp-data }
+    # - { rule: allow, service: ftp }
+    # FTPS
+    # - { rule: allow, service: ftps-data }
+    # - { rule: allow, service: ftps }
+    # iperf
+    # - { rule: allow, port: 5001, proto: any }
+    # SMTP
+    # - { rule: allow, service: smtp }
+    # IMAP
+    # - { rule: allow, service: imap }
+    # IMAP
+    # - { rule: allow, service: imaps }
+    # POP3
+    # - { rule: allow, service: pop3 }
+    # POP3S
+    # - { rule: allow, service: pop3s }
+
+
+    # for redhat/centos (firewalld)
+
+    # SSH 22
+    # - { state: enabled, service: ssh }
+    # dns
+    # - { state: enabled, service: dns }
+    # ntp
+    # - { state: enabled, service: ntp }
+    # HTTP
+    # - { state: enabled, service: http }
+    # HTTPS
+    # - { state: enabled, service: https }
+    # GIT
+    # - { state: enabled, port: 9418 , proto: tcp }
+    # FTP
+    # - { state: enabled, port: 20 , proto: tcp  }
+    # - { state: enabled, service: ftp }
+    # FTPS
+    # - { state: enabled, port: 989 , proto: tcp  }
+    # - { state: enabled, port: 990 , proto: tcp  }
+    # iperf
+    # - { state: enabled, port: 5001 }
+    # SMTP
+    # - { state: enabled, service: smtp }
+    # IMAP
+    # - { state: enabled, service: imap }
+    # IMAP
+    # - { state: enabled, service: imaps }
+    # POP3
+    # - { state: enabled, port: 110 }
+    # POP3S
+    # - { state: enabled, service: pop3s }

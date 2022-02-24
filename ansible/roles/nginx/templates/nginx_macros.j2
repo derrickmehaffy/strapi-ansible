@@ -1,0 +1,37 @@
+{% macro paramsList(params, indentNb=4) %}
+{% for key,value in params|dictsort %}
+{%   if value is mapping %}
+{%     if value.multiple|default(false) %}
+{%       for row in value.params %}
+{%         if row is mapping and row.block|default(false) %}
+{{ paramBlock(key, row.params, row.target|default(none), indentNb) }}
+{%         else %}
+{{ paramRow(key, row, indentNb) }}
+{%         endif %}
+{%        endfor %}
+{%     elif value.block|default(false) %}
+{{ paramBlock(key, value.params, value.target|default(none), indentNb) }}
+{%     endif %}
+{%   else %}
+{{ paramRow(key, value, indentNb) }}
+{%   endif %}
+{% endfor %}
+{% endmacro %}
+
+{% macro paramBlock(key, params, target=none, indentNb=4) %}
+{{ key|indent(indentNb, true) }}{% if target is defined and target != '' and target is not none %} {{ target }}{% endif %} {
+{{ paramsList(params, indentNb+4) }}
+{{ '}'|indent(indentNb, true) }}
+{% endmacro %}
+
+{% macro paramRow(key, value, indentNb=4) -%}
+{% if value is iterable and value is not string -%}
+{{ key|indent(indentNb, true) }} {{ value|join(' ') }};
+{%- elif value == true or value == 'on' -%}
+{{ key|indent(indentNb, true) }} {{ 'on' }};
+{%- elif value == false or value == 'off' -%}
+{{ key|indent(indentNb, true) }} {{ 'off' }};
+{%- elif value is string or value is number -%}
+{{ key|indent(indentNb, true) }} {{ value }};
+{%- endif %}
+{%- endmacro %}

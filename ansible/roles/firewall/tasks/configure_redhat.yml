@@ -1,0 +1,78 @@
+---
+- name: get firewalld default zone
+  command: firewall-cmd --get-default-zone
+  register: firewalld_current_default_zone
+  when: firewall_default_zone is defined and firewall_default_zone != '' and firewall_default_zone is not none
+
+- name: set firewalld default zone
+  command: firewall-cmd --set-default-zone={{ firewall_default_zone }}
+  when: firewalld_current_default_zone is defined and firewall_default_zone is defined and firewall_default_zone != '' and firewall_default_zone is not none and firewalld_current_default_zone.rc == 0 and firewalld_current_default_zone.stdout != firewall_default_zone
+  register: firewalld_set_default_zone_result
+  notify: restart firewalld
+
+- name: reload firewalld
+  service: name=firewalld state=reloaded
+  when: firewalld_set_default_zone_result.changed
+
+- name: get firewalld default zone
+  command: firewall-cmd --get-default-zone
+  register: firewalld_current_default_zone
+
+- name: enable NAT ipv4 forward
+  sysctl: name="net.ipv4.ip_forward" value=1 sysctl_file=/etc/sysctl.d/ip_forward.conf sysctl_set=yes state=present reload=yes
+  when: firewall_nat_forward
+
+- name: enable NAT Gateway on firewalld
+  command: firewall-cmd --permanent --direct --passthrough ipv4 -t nat -I POSTROUTING -o eth0 -j MASQUERADE --zone={{ firewalld_current_default_zone.stdout }}
+  when: firewall_nat_forward
+  register: firewalld_set_nat_gateway_result
+  notify: restart firewalld
+
+- name: restart firewalld
+  service: name=firewalld state=restarted
+
+- name: enable/disable MASQUERADE on firewalld zones
+  command: firewall-cmd --zone={{ item.zone|default(firewalld_current_default_zone.stdout) }} --{{ item.enabled|default(true)|ternary('add','remove') }}-masquerade
+  with_items: "{{firewall_masquerade_zones}}"
+  notify: restart firewalld
+
+- name: Configuring filter rules by services
+  firewalld: >
+      service="{{ item.service }}"
+      zone="{{ item.zone|default(firewalld_current_default_zone.stdout) }}"
+      timeout="{{ item.timeout|default(omit) }}"
+      rich_rule="{{ item.rich_rule|default(omit) }}"
+      immediate="{{ item.immediate|default(true) }}"
+      permanent="{{ item.permanent|default(true) }}"
+      state="{{ item.state|default('enabled') }}"
+  when: item.service is defined and item.service is not none and item.service != ''
+  with_items: "{{firewall_rules}}"
+  notify: restart firewalld
+
+- name: Configuring filter rules by ports
+  firewalld: >
+      port="{{ (item.from_port|default(none))|ternary( (item.from_port ~ item.to_port|ternary( '-' ~ item.to_port, '') ), item.port|default(none)) ~ (item.proto|default(none))|ternary('/' ~ item.proto ,'') }}"
+      zone="{{ item.zone|default(firewalld_current_default_zone.stdout) }}"
+      timeout="{{ item.timeout|default(omit) }}"
+      rich_rule="{{ item.rich_rule|default(omit) }}"
+      immediate="{{ item.immediate|default(true) }}"
+      permanent="{{ item.permanent|default(true) }}"
+      state="{{ item.state|default('enabled') }}"
+  when: (item.port is defined and item.port is not none and item.port != '') or (item.from_port is defined and item.from_port is not none and item.from_port != '')
+  with_items: "{{firewall_rules}}"
+  notify: restart firewalld
+
+- name: allow ssh
+  firewalld: >
+    port={{ firewall_ssh_port|default(22) }}/tcp
+    permanent=true
+    immediate=true
+    state=enabled
+  notify: restart firewalld
+
+- name: enable/disable MASQUERADE on firewalld zones
+  command: >
+    firewall-cmd --zone={{ item.zone|default(firewalld_current_default_zone.stdout) }}
+    --permanent --add-forward-port=port={{ item.from_port }}:proto={{ item.proto|default('tcp') }}:toport={{ item.to_port }}:toaddr={{ item.to_ip }}
+  with_items: "{{firewall_nat_forward_rules}}"
+  notify: restart firewalld

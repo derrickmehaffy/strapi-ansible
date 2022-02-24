@@ -1,0 +1,18 @@
+---
+- name: update npm
+  command: npm update -g
+  when: nodejs_npm_update
+
+- name: install npm default packages
+  npm: name={{ item.name }}
+       version={{ item.version|default('') }}
+       global={{ item.global|default('yes') }}
+       state={{ item.state|default('present') }}
+  with_items: "{{ nodejs_npm_default_packages }}"
+
+- name: install npm packages
+  npm: name={{ item.name }}
+       version={{ item.version|default('') }}
+       global={{ item.global|default('yes') }}
+       state={{ item.state|default('present') }}
+  with_items: "{{ nodejs_npm_packages }}"
